@@ -37,7 +37,17 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiResponse> dataIntegrityViolationExceptionHandler(DataIntegrityViolationException e){
-        ApiResponse apiResponse=new ApiResponse("This Email Already Exists",false);
+        String errorMessage;
+
+        if (e.getMessage().contains("email")) {
+            errorMessage = "This Email Already Exists";
+        } else if (e.getMessage().contains("title")) {
+            errorMessage = "This Category Title Already Exists";
+        } else {
+            errorMessage = "Data integrity violation occurred";
+        }
+
+        ApiResponse apiResponse = new ApiResponse(errorMessage, false);
         return new ResponseEntity<>(apiResponse,HttpStatus.BAD_REQUEST);
     }
 }
