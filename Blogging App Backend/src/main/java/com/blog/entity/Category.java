@@ -8,6 +8,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -25,5 +28,8 @@ public class Category {
     @NotEmpty(message = "Category description can not be empty")
     @Size(min =10,message = "Description must be greater than 10 characters")
     private String categoryDescription;
+
+    @OneToMany(mappedBy = "category" ,cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    List<Post> posts=new ArrayList<>();
 
 }
