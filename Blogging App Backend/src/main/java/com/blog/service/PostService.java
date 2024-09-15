@@ -1,6 +1,8 @@
 package com.blog.service;
 
+import com.blog.entity.Post;
 import com.blog.payload.PostDto;
+import com.blog.payload.PostResponse;
 
 import java.util.List;
 
@@ -13,7 +15,7 @@ public interface PostService {
 
     void deletePost(Integer postId);
 
-    List<PostDto> getPosts();
+    PostResponse getPosts(int pageNumber, int pageSize);
 
     List<PostDto> getPostByUser(Integer userId );
 
