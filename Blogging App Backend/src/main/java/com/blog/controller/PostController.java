@@ -34,9 +34,11 @@ public class PostController {
     @GetMapping("/post")
     public ResponseEntity<PostResponse> getPosts(
         @RequestParam (value = "pageNumber",defaultValue = "0",required = false) Integer pageNumber,
-        @RequestParam (value = "pageSize",defaultValue = "10",required = false) Integer pageSize
+        @RequestParam (value = "pageSize",defaultValue = "10",required = false) Integer pageSize,
+        @RequestParam (value = "sortBy",defaultValue = "id",required = false) String sortBy,
+        @RequestParam (value = "sortOrder",defaultValue = "DESC",required = false) String sortOrder
         ){
-        PostResponse posts = postService.getPosts(pageNumber,pageSize);
+        PostResponse posts = postService.getPosts(pageNumber,pageSize,sortBy,sortOrder);
         return new ResponseEntity<>(posts,HttpStatus.OK);
     }
     @GetMapping("/user/{userId}/post")

@@ -16,6 +16,7 @@ import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -57,16 +58,17 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostResponse getPosts(int pageNumber,int pageSize) {
-        Pageable pageable= PageRequest.of(pageNumber,pageSize);
+    public PostResponse getPosts(int pageNumber,int pageSize,String sortBy,String sortOrder) {
+        Sort sort=sortOrder.equalsIgnoreCase("DESC")?Sort.by(sortBy).descending():Sort.by(sortBy).ascending();
+        Pageable pageable= PageRequest.of(pageNumber,pageSize, sort);
         Page<Post> postPage = postRepository.findAll(pageable);
         List<Post> posts = postPage.getContent();
         PostResponse postResponse=new PostResponse();
         postResponse.setPosts( postMapper.postListToPostDtoList(posts));
         postResponse.setTotalPosts(postPage.getTotalElements());
-        postResponse.setPageSize(postPage.getTotalPages());
+        postResponse.setPageSize(postPage.getSize());
         postResponse.setLastPage(postPage.isLast());
-        postResponse.setTotalPages(postPage.getSize());
+        postResponse.setTotalPages(postPage.getTotalPages());
         postResponse.setPageNumber(postPage.getNumber());
         return postResponse;
     }
