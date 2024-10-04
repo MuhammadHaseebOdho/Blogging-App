@@ -6,10 +6,12 @@ import com.blog.payload.PostResponse;
 import com.blog.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -18,12 +20,12 @@ public class PostController {
     @Autowired
     PostService postService;
 
-    @PostMapping("/user/{userId}/category/{categoryId}/post")
+    @PostMapping(path = "/user/{userId}/category/{categoryId}/post",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PostDto> createPost(@PathVariable Integer categoryId,
                                               @PathVariable Integer userId,
-                                              @RequestBody PostDto postDto,
+                                              @ModelAttribute PostDto postDto,
                                               @RequestParam("images")MultipartFile images
-                                              ){
+                                              ) throws IOException {
         PostDto post = postService.createPost(postDto, userId, categoryId,images);
         return new ResponseEntity<>(post, HttpStatus.CREATED);
     }

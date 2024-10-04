@@ -20,6 +20,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -38,21 +44,69 @@ public class PostServiceImpl implements PostService {
     @Autowired
     CategoryRepository categoryRepository;
 
-    private final String IMAGE_PATH="";
+    private final String IMAGES_PATH="src/main/resources/static/img/post_imgs";
 
     @Override
-    public PostDto createPost(PostDto postDto, Integer userId, Integer categoryId, MultipartFile images) {
+    public PostDto createPost(PostDto postDto, Integer userId, Integer categoryId, MultipartFile images) throws IOException {
         User user = userRepository.findById(userId).
                 orElseThrow(() -> new ResourceNotFoundException(userId, "Requested User with Id:" + userId + " can not be found."));
         Category category = categoryRepository.findById(categoryId).orElseThrow(() -> new ResourceNotFoundException(categoryId, "Requested Category with Id:" + categoryId + " can not be found."));
         System.out.println(new Date());
         postDto.setCreatedDate(new Date());
-        postDto.setImageName("default.png");
         Post post = postMapper.postDtoToPost(postDto);
         post.setCategory(category);
         post.setUser(user);
+       if (images != null && !images.isEmpty()) {
+            String image= saveImages(images);
+            post.setImageName(image);
+            //postRepository.save(post);
+        }else{
+           postDto.setImageName("default.png");
+           //postRepository.save(post);
+       }
         return postMapper.postToPostDto(postRepository.save(post));
     }
+    private String saveImages(MultipartFile image) throws IOException {
+
+        Path uploadPath = Paths.get(IMAGES_PATH);
+        if (!Files.exists(uploadPath)) {
+            System.out.println("Creating directory: " + uploadPath.toString());
+            Files.createDirectories(uploadPath);
+        } else {
+            System.out.println("Directory already exists: " + uploadPath.toString());
+        }
+
+        //List<RentOutProductImages> rentOutProductImagesList = new ArrayList<>();
+
+        /*if (images == null || images.isEmpty()) {
+            System.out.println("No images to upload");
+            return rentOutProductImagesList;
+        }*/
+        String fileName= "";
+        //for (MultipartFile file : images) {
+            try {
+                // Generate unique filename
+                fileName = System.currentTimeMillis() + "_" + image.getOriginalFilename();
+                Path filePath = uploadPath.resolve(fileName);
+                System.out.println("filepath: "+filePath.toString());
+                // Save the image
+                Files.copy(image.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+                System.out.println("Saved file: " + fileName);
+
+                // Create RentOutProductImages entity
+                /*RentOutProductImages rentOutProductImage = new RentOutProductImages();
+                rentOutProductImage.setImagePath(fileName); // Save the image filename/path
+                rentOutProductImage.setRentOut(rentOut); // Set the RentOut reference
+                rentOutProductImagesList.add(rentOutProductImage);*/
+            } catch (IOException e) {
+                System.err.println("Error saving file: " + image.getOriginalFilename());
+                e.printStackTrace();
+            }
+       // }
+
+        return fileName;
+    }
+
 
     @Override
     public PostDto getPost(Integer postId) {
