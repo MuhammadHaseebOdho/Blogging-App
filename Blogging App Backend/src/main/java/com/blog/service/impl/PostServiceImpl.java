@@ -18,6 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 import java.util.List;
@@ -37,8 +38,10 @@ public class PostServiceImpl implements PostService {
     @Autowired
     CategoryRepository categoryRepository;
 
+    private final String IMAGE_PATH="";
+
     @Override
-    public PostDto createPost(PostDto postDto, Integer userId, Integer categoryId) {
+    public PostDto createPost(PostDto postDto, Integer userId, Integer categoryId, MultipartFile images) {
         User user = userRepository.findById(userId).
                 orElseThrow(() -> new ResourceNotFoundException(userId, "Requested User with Id:" + userId + " can not be found."));
         Category category = categoryRepository.findById(categoryId).orElseThrow(() -> new ResourceNotFoundException(categoryId, "Requested Category with Id:" + categoryId + " can not be found."));
@@ -110,5 +113,11 @@ public class PostServiceImpl implements PostService {
                 () -> new ResourceNotFoundException(postId, "Requested Post with Id:" + postId + " can not be found.")
         );
         postRepository.deleteById(postId);
+    }
+
+    @Override
+    public List<PostDto> getPostByTitle(String title) {
+        List<Post> postsByTitle = postRepository.getPostsByTitleContaining(title);
+        return postMapper.postListToPostDtoList(postsByTitle);
     }
 }

@@ -15,5 +15,7 @@ public interface PostRepository extends JpaRepository<Post,Integer> {
 
     List<Post> getPostsByUser(User user);
 
+    List<Post> getPostsByTitleContaining(String title);
+
 
 }

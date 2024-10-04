@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -20,8 +21,10 @@ public class PostController {
     @PostMapping("/user/{userId}/category/{categoryId}/post")
     public ResponseEntity<PostDto> createPost(@PathVariable Integer categoryId,
                                               @PathVariable Integer userId,
-                                              @RequestBody PostDto postDto){
-        PostDto post = postService.createPost(postDto, userId, categoryId);
+                                              @RequestBody PostDto postDto,
+                                              @RequestParam("images")MultipartFile images
+                                              ){
+        PostDto post = postService.createPost(postDto, userId, categoryId,images);
         return new ResponseEntity<>(post, HttpStatus.CREATED);
     }
 
@@ -63,6 +66,11 @@ public class PostController {
         return new ResponseEntity<>(updatedPost,HttpStatus.OK);
     }
 
+    @GetMapping("/post/search/{search}")
+    public ResponseEntity<List<PostDto>> postSearch(@PathVariable String search){
+        List<PostDto> posts = postService.getPostByTitle(search);
+        return new ResponseEntity<>(posts,HttpStatus.OK);
+    }
 
 }
 
